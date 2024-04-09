@@ -1,19 +1,82 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState, useCallback } from 'react';
+import {
+  Container,
+  Page,
+  Img,
+  Text,
+  PrevNext,
+  DotContainer,
+  Dot
+} from './styles'
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+interface ImagePaginationProps {
+  pages: {
+    src: string,
+    text: string,
+  }[],
+  dotDisplay: boolean,
+  isInfinite: boolean
+}
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const ImagePagination = ({
+  pages,
+  dotDisplay = true,
+  isInfinite = false,
+}: ImagePaginationProps) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeButton, setActiveButton] = useState(false);
+
+  const onClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    const { type } = e.target as HTMLAnchorElement;
+    if (type === 'prev' && activeIndex !== 0) {
+      setActiveIndex(activeIndex => activeIndex - 1);
+    } else if (type === 'next' && activeIndex !== pages.length - 1) {
+      setActiveIndex(activeIndex => activeIndex + 1);
+    }
+  }, [pages, activeIndex, setActiveIndex]);
+  const onMouseEnter = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveButton(true);
+  }, [activeButton, setActiveButton]);
+  const onMouseLeave = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveButton(false);
+  }, [activeButton, setActiveButton]);
+
+  return (
+    <>
+      <Container
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        {
+          pages.map((img, idx) => (
+            <Page
+              key={`${img.src}_${idx}`}
+              active={activeIndex === idx}
+            >
+              <Img src={img.src} />
+              {img.text && <Text>{img.text}</Text>}
+            </Page>
+          ))
+        }
+        {
+          activeButton && <>
+            <PrevNext type={'prev'} onClick={onClick}>&#10094;</PrevNext>
+            <PrevNext type={'next'} onClick={onClick}>&#10095;</PrevNext>
+          </>
+        }
+      </Container>
+      {
+        dotDisplay && <DotContainer>
+          {pages.map((img, idx) => (
+            <Dot key={`${img.src}_${idx}`} active={activeIndex === idx} />
+          ))}
+        </DotContainer>
+      }
+    </>
+  );
+};
+
+export default ImagePagination;
