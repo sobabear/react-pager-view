@@ -1,6 +1,6 @@
 {
   "name": "react-pager-view",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "Very Very Simple React Pager Componenet",
   "keywords": [
@@ -19,9 +19,6 @@
     "url": "https://github.com/sobabear/ReactPager"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.95",
     "@types/react": "^18.2.75",
