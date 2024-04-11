@@ -9,7 +9,7 @@ import {
   Dot
 } from './styles'
 
-interface ImagePaginationProps {
+interface ImagePagerProps {
   pages: {
     src: string,
     text: string,
@@ -18,31 +18,35 @@ interface ImagePaginationProps {
   isInfinite: boolean
 }
 
-const ImagePagination = ({
+const ImagePager = ({
   pages,
   dotDisplay = true,
   isInfinite = false,
-}: ImagePaginationProps) => {
+}: ImagePagerProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeButton, setActiveButton] = useState(false);
 
   const onClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     const { type } = e.target as HTMLAnchorElement;
-    if (type === 'prev' && activeIndex !== 0) {
-      setActiveIndex(activeIndex => activeIndex - 1);
-    } else if (type === 'next' && activeIndex !== pages.length - 1) {
-      setActiveIndex(activeIndex => activeIndex + 1);
+    if (type === 'prev') {
+      if (isInfinite || activeIndex !== 0) {
+        setActiveIndex(activeIndex => (activeIndex === 0 ? pages.length - 1 : activeIndex - 1));
+      }
+    } else if (type === 'next') {
+      if (isInfinite || activeIndex !== pages.length - 1) {
+        setActiveIndex(activeIndex => (activeIndex === pages.length - 1 ? 0 : activeIndex + 1));
+      }
     }
-  }, [pages, activeIndex, setActiveIndex]);
-  const onMouseEnter = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
+  }, [pages, activeIndex, setActiveIndex, isInfinite]);
+
+  const onMouseEnter = useCallback(() => {
     setActiveButton(true);
-  }, [activeButton, setActiveButton]);
-  const onMouseLeave = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
+  }, [setActiveButton]);
+
+  const onMouseLeave = useCallback(() => {
     setActiveButton(false);
-  }, [activeButton, setActiveButton]);
+  }, [setActiveButton]);
 
   return (
     <>
@@ -50,33 +54,35 @@ const ImagePagination = ({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        {
-          pages.map((img, idx) => (
-            <Page
-              key={`${img.src}_${idx}`}
-              active={activeIndex === idx}
-            >
-              <Img src={img.src} />
-              {img.text && <Text>{img.text}</Text>}
-            </Page>
-          ))
-        }
-        {
-          activeButton && <>
-            <PrevNext type={'prev'} onClick={onClick}>&#10094;</PrevNext>
-            <PrevNext type={'next'} onClick={onClick}>&#10095;</PrevNext>
+        {pages.map((img, idx) => (
+          <Page
+            key={`${img.src}_${idx}`}
+            active={activeIndex === idx}
+          >
+            <Img src={img.src} />
+            {img.text && <Text>{img.text}</Text>}
+          </Page>
+        ))}
+        {activeButton && (
+          <>
+            <PrevNext type={'prev'} onClick={onClick}>
+              &#10094;
+            </PrevNext>
+            <PrevNext type={'next'} onClick={onClick}>
+              &#10095;
+            </PrevNext>
           </>
-        }
+        )}
       </Container>
-      {
-        dotDisplay && <DotContainer>
+      {dotDisplay && (
+        <DotContainer>
           {pages.map((img, idx) => (
             <Dot key={`${img.src}_${idx}`} active={activeIndex === idx} />
           ))}
         </DotContainer>
-      }
+      )}
     </>
   );
 };
 
-export default ImagePagination;
+export default ImagePager;
